@@ -70,6 +70,7 @@ fi
 install -Dm644 %{_sourcedir}/fluxmedia.1 %{buildroot}%{_mandir}/man1/fluxmedia.1
 
 %files -f %{pyproject_files}
+%{_bindir}/fluxmedia
 %doc README.md ROADMAP.md
 %license LICENSE
 %{_datadir}/applications/fluxmedia.desktop

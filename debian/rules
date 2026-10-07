@@ -14,3 +14,9 @@ override_dh_auto_build:
 	sed -i 's/^license = "GPL-3.0"/license = {text = "GPL-3.0"}/' pyproject.toml
 	sed -i '/^    "instaloader>=4.11.0",/d' pyproject.toml
 	dh_auto_build
+
+# Upstream ships no unittest suite (test_*.py are manual scripts needing
+# network); pybuild's auto-discovered "tests" just import the installed
+# package and fail on missing optional runtime deps in the build env.
+override_dh_auto_test:
+	@echo "Skipping dh_auto_test: no upstream unit tests."

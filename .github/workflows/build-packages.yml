@@ -1,0 +1,141 @@
+name: Build packages
+
+# Builds all native packages (Arch, .deb, .rpm) from the current
+# packaging + upstream release tarball.
+#
+# Every run uploads the built files as workflow artifacts, so any
+# commit/PR has downloadable "compiled files" under the Actions tab.
+# When a GitHub Release is published in this repo, the same files are
+# attached to that release automatically.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: write # needed to attach files to releases
+
+jobs:
+  arch:
+    name: Arch (.pkg.tar.zst)
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # NOTE: runs before checkout on purpose — checkout needs git,
+      # which is not in the base container image.
+      - name: Install git
+        run: pacman -Sy --noconfirm --needed git sudo
+
+      - uses: actions/checkout@v4
+
+      - name: Build with makepkg (unprivileged builder user)
+        run: |
+          pacman -Syu --noconfirm --needed base-devel \
+            python python-build python-installer python-setuptools python-wheel \
+            python-rich python-requests python-textual python-mutagen \
+            python-fastapi uvicorn yt-dlp ffmpeg nodejs
+          useradd -m builder
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+          chown -R builder:builder .
+          su builder -c "makepkg -sf --noconfirm"
+          ls -la ./*.pkg.tar.zst
+
+      - name: Upload Arch package
+        uses: actions/upload-artifact@v4
+        with:
+          name: arch-package
+          path: "*.pkg.tar.zst"
+
+  deb:
+    name: Debian (.deb)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble source tree from upstream tarball
+        run: |
+          PKGVER="$(grep -E '^pkgver=' PKGBUILD | cut -d= -f2)"
+          echo "PKGVER=$PKGVER" >> "$GITHUB_ENV"
+          mkdir -p build && cd build
+          curl -fsSL "https://github.com/pdev-labs/FluxMedia/archive/refs/tags/v${PKGVER}.tar.gz" -o upstream.tar.gz
+          tar xzf upstream.tar.gz
+          cp -r ../debian "FluxMedia-${PKGVER}/debian"
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q build-essential debhelper \
+            pybuild-plugin-pyproject python3-all python3-build \
+            python3-installer python3-setuptools python3-wheel
+
+      - name: Build binary package
+        run: |
+          cd "build/FluxMedia-${PKGVER}"
+          dpkg-buildpackage -us -uc -b
+          ls -la ../*.deb
+
+      - name: Upload .deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-package
+          path: "build/*.deb"
+
+  rpm:
+    name: Fedora (.rpm)
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # NOTE: runs before checkout on purpose — checkout needs git,
+      # which is not in the base container image.
+      - name: Install git
+        run: dnf install -y git
+
+      - uses: actions/checkout@v4
+
+      - name: Build RPM
+        run: |
+          dnf install -y rpm-build rpmdevtools python3-devel \
+            pyproject-rpm-macros python3-build python3-installer \
+            python3-setuptools python3-wheel curl
+          PKGVER="$(grep -E '^pkgver=' PKGBUILD | cut -d= -f2)"
+          mkdir -p ~/rpmbuild/{SOURCES,SPECS}
+          cp fluxmedia.spec ~/rpmbuild/SPECS/
+          cp fluxmedia.desktop fluxmedia.1 ~/rpmbuild/SOURCES/
+          spectool -g -R ~/rpmbuild/SPECS/fluxmedia.spec
+          rpmbuild -ba ~/rpmbuild/SPECS/fluxmedia.spec
+          ls -la ~/rpmbuild/RPMS/noarch/*.rpm
+          cp ~/rpmbuild/RPMS/noarch/*.rpm .
+
+      - name: Upload .rpm
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpm-package
+          path: "*.rpm"
+
+  release:
+    name: Attach to GitHub Release
+    needs: [arch, deb, rpm]
+    if: github.event_name == 'release' && github.event.action == 'published'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Upload assets to release
+        run: |
+          ls -la dist/
+          gh release upload "${{ github.event.release.tag_name }}" dist/* --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}

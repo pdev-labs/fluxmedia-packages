@@ -74,8 +74,10 @@ jobs:
             - `debian/changelog` new stanza
             - `README.md` version references
 
-            Merge, then publish: update AUR (`makepkg --printsrcinfo` already done),
-            attach `.deb`/`.rpm` builds as release assets if desired.
+            Merge, then publish: update AUR (`makepkg --printsrcinfo` already done).
+            Built `.pkg.tar.zst` / `.deb` / `.rpm` files are produced
+            automatically by the `Build packages` workflow and attached
+            to GitHub Releases.
           branch: "auto/upstream-${{ steps.bump.outputs.pkgver }}"
           delete-branch: true
           labels: automated, packaging

@@ -23,6 +23,18 @@ System Python dependencies are used on all three (e.g. `python-rich`,
 `optdepends` / `Recommends`, because FluxMedia lazy-imports them only
 when the feature is used.
 
+## Prebuilt binaries (no build needed)
+
+Every push/PR runs the [`Build packages`](../../actions/workflows/build-packages.yml)
+workflow, which compiles the Arch (`.pkg.tar.zst`), Debian (`.deb`) and
+Fedora (`.rpm`) files — download them from the workflow run's
+**Artifacts** section. When a GitHub Release is published here, the same
+files are attached to the release automatically.
+
+To cut a release: merge the auto-sync PR, then
+`gh release create "v$(grep -E '^pkgver=' PKGBUILD | cut -d= -f2)-1" --generate-notes`
+(or use the web UI) — the workflow handles the rest.
+
 ## 1. Arch Linux (AUR)
 
 ```bash

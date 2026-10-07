@@ -3,3 +3,14 @@ export PYBUILD_NAME = fluxmedia
 
 %:
 	dh $@ --with python3 --buildsystem=pybuild
+
+# Downstream-only pyproject adjustments (mirrored in fluxmedia.spec %prep):
+# - Upstream's legacy `license = "GPL-3.0"` string is rejected by strict
+#   setuptools validation; use the valid PEP 621 table form.
+# - instaloader is imported lazily by FluxMedia (Instagram [beta] only) and
+#   is covered by Recommends, so drop it from the hard requirements rather
+#   than generating an unsatisfiable ${python3:Depends} entry.
+override_dh_auto_build:
+	sed -i 's/^license = "GPL-3.0"/license = {text = "GPL-3.0"}/' pyproject.toml
+	sed -i '/^    "instaloader>=4.11.0",/d' pyproject.toml
+	dh_auto_build

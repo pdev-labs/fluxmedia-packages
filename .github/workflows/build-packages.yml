@@ -106,7 +106,9 @@ jobs:
         run: |
           dnf install -y rpm-build rpmdevtools python3-devel \
             pyproject-rpm-macros python3-build python3-installer \
-            python3-setuptools python3-wheel curl
+            python3-setuptools python3-wheel curl \
+            python3-rich python3-requests yt-dlp python3-textual \
+            python3-mutagen python3-fastapi python3-uvicorn ffmpeg nodejs
           PKGVER="$(grep -E '^pkgver=' PKGBUILD | cut -d= -f2)"
           mkdir -p ~/rpmbuild/{SOURCES,SPECS}
           cp fluxmedia.spec ~/rpmbuild/SPECS/

@@ -25,7 +25,10 @@ Requires:       python3-uvicorn >= 0.23.0
 Requires:       ffmpeg
 # Optional at runtime (lazy-imported by FluxMedia, or JS runtimes for yt-dlp)
 Recommends:     nodejs
-Recommends:     instaloader
+# NOTE: no `instaloader` weak dep here — it is not in Fedora (checked
+# 2026-10). FluxMedia imports it lazily (Instagram [beta] only) and it is
+# dropped from the build requirements in %prep, so the RPM stays
+# installable; install it via pip if you need that feature.
 Suggests:       python3-curl_cffi
 Suggests:       python3-quickjs
 
@@ -38,6 +41,14 @@ HTTP server and QR-code access.
 
 %prep
 %autosetup -n FluxMedia-%{version}
+# Downstream-only pyproject adjustments (mirrored in debian/rules):
+# 1. Upstream's legacy `license = "GPL-3.0"` string is rejected by strict
+#    setuptools validation; use the valid PEP 621 table form.
+sed -i 's/^license = "GPL-3.0"/license = {text = "GPL-3.0"}/' pyproject.toml
+# 2. instaloader is not in Fedora and FluxMedia imports it lazily
+#    (Instagram [beta] only), so drop it from the hard requirements rather
+#    than emitting unsatisfiable python3dist() BuildRequires/Requires.
+sed -i '/^    "instaloader>=4.11.0",/d' pyproject.toml
 
 %generate_buildrequires
 %pyproject_buildrequires

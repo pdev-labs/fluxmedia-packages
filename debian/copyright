@@ -1,0 +1,15 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: fluxmedia
+Upstream-Contact: https://github.com/pdev-labs
+Source: https://github.com/pdev-labs/FluxMedia
+
+Files: *
+Copyright: pdev-labs contributors
+License: GPL-3.0-or-later
+
+Files: debian/*
+Copyright: pdev-labs contributors
+License: GPL-3.0-or-later
+
+License: GPL-3.0-or-later
+ See /usr/share/common-licenses/GPL-3.

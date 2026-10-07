@@ -1,0 +1,31 @@
+pkgbase = fluxmedia
+	pkgdesc = A powerful, cross-platform media portal and processing toolkit (LAN QR share portal + rich media player)
+	pkgver = 1.18.0
+	pkgrel = 1
+	url = https://github.com/pdev-labs/FluxMedia
+	arch = any
+	license = GPL-3.0-or-later
+	makedepends = python-build
+	makedepends = python-installer
+	makedepends = python-setuptools
+	makedepends = python-wheel
+	depends = python
+	depends = python-rich>=13.7.0
+	depends = python-requests>=2.31.0
+	depends = yt-dlp>=2025.2.18
+	depends = python-textual>=0.50.0
+	depends = python-mutagen>=1.47.0
+	depends = python-fastapi>=0.100.0
+	depends = uvicorn>=0.23.0
+	depends = ffmpeg
+	optdepends = nodejs: JavaScript runtime for yt-dlp JS challenges (YouTube)
+	optdepends = instaloader: Instagram profile downloader [beta] (AUR)
+	optdepends = python-websockets: improved portal websocket performance
+	source = fluxmedia-1.18.0.tar.gz::https://github.com/pdev-labs/FluxMedia/archive/refs/tags/v1.18.0.tar.gz
+	source = fluxmedia.desktop
+	source = fluxmedia.1
+	sha256sums = ce8eff0176422afbd0cd71feb32ad292f3a062b4c304a56a195ca9ad9f623284
+	sha256sums = SKIP
+	sha256sums = SKIP
+
+pkgname = fluxmedia

@@ -1,0 +1,16 @@
+# makepkg artifacts
+*.pkg.tar.*
+*.pkg.tar.zst
+src/
+pkg/
+# deb build artifacts
+build/
+*.deb
+*.dsc
+*.changes
+*.buildinfo
+*.debian.tar.*
+*.orig.tar.*
+# rpm build artifacts
+*.rpm
+__pycache__/

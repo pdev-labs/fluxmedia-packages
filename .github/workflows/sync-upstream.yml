@@ -1,0 +1,81 @@
+name: Sync upstream release
+
+# Polls pdev-labs/FluxMedia for new releases and opens a PR bumping
+# PKGBUILD + .SRCINFO + fluxmedia.spec + debian/changelog + README.
+# Instant mode: upstream can also trigger this via repository_dispatch
+# with event type `upstream-release` (see FluxMedia promote workflow).
+
+on:
+  schedule:
+    - cron: "17 */6 * * *" # every 6h
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Force sync to this version (e.g. 1.19.0, without leading v)"
+        required: false
+        default: ""
+  repository_dispatch:
+    types: [upstream-release]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump to latest upstream release
+        id: bump
+        run: |
+          chmod +x scripts/sync-upstream.sh
+          ARGS=""
+          if [ -n "${{ inputs.version }}" ]; then
+            ARGS="--version ${{ inputs.version }}"
+          elif [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            VER="${{ github.event.client_payload.version }}"
+            if [ -n "$VER" ]; then ARGS="--version $VER"; fi
+          fi
+          # shellcheck disable=SC2086
+          if scripts/sync-upstream.sh $ARGS; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "pkgver=$(grep -E '^pkgver=' PKGBUILD | cut -d= -f2)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Validate packaging
+        if: steps.bump.outputs.changed == 'true'
+        run: |
+          bash -n PKGBUILD
+          bash -n scripts/sync-upstream.sh
+          grep -q "pkgver = ${{ steps.bump.outputs.pkgver }}" .SRCINFO
+          grep -q "^Version:.*${{ steps.bump.outputs.pkgver }}" fluxmedia.spec
+          head -1 debian/changelog | grep -q "${{ steps.bump.outputs.pkgver }}"
+
+      - name: Open bump PR
+        if: steps.bump.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: sync to upstream v${{ steps.bump.outputs.pkgver }}"
+          title: "chore: sync to upstream v${{ steps.bump.outputs.pkgver }}"
+          body: |
+            Automated sync to [FluxMedia v${{ steps.bump.outputs.pkgver }}](https://github.com/pdev-labs/FluxMedia/releases).
+            Triggered by `${{ github.event_name }}`.
+
+            - `PKGBUILD` pkgver + tarball sha256
+            - `.SRCINFO` regenerated
+            - `fluxmedia.spec` Version + %changelog
+            - `debian/changelog` new stanza
+            - `README.md` version references
+
+            Merge, then publish: update AUR (`makepkg --printsrcinfo` already done),
+            attach `.deb`/`.rpm` builds as release assets if desired.
+          branch: "auto/upstream-${{ steps.bump.outputs.pkgver }}"
+          delete-branch: true
+          labels: automated, packaging

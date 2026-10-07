@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=FluxMedia
+Comment=Media portal and processing toolkit (LAN share + downloader)
+Exec=fluxmedia
+Icon=fluxmedia
+Terminal=true
+Type=Application
+Categories=AudioVideo;Network;Utility;
+Keywords=media;downloader;youtube;streaming;lan;share;
+StartupNotify=false

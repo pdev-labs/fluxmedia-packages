@@ -79,6 +79,7 @@ sudo apt install debhelper pybuild-plugin-pyproject \
 #   mkdir build && cd build
 #   tar xzf ../FluxMedia-1.18.0.tar.gz
 #   cp -r ../debian FluxMedia-1.18.0/debian
+#   cp ../fluxmedia.desktop ../fluxmedia.1 FluxMedia-1.18.0/
 #   cd FluxMedia-1.18.0 && dpkg-buildpackage -us -uc
 sudo apt install ../fluxmedia_1.18.0-1_all.deb
 

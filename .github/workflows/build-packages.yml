@@ -67,6 +67,9 @@ jobs:
           curl -fsSL "https://github.com/pdev-labs/FluxMedia/archive/refs/tags/v${PKGVER}.tar.gz" -o upstream.tar.gz
           tar xzf upstream.tar.gz
           cp -r ../debian "FluxMedia-${PKGVER}/debian"
+          # Files shipped by this packaging repo (referenced in
+          # debian/fluxmedia.install) live at our repo root.
+          cp ../fluxmedia.desktop ../fluxmedia.1 "FluxMedia-${PKGVER}/"
 
       - name: Install build dependencies
         run: |

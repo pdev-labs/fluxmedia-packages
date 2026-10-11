@@ -31,9 +31,10 @@ Fedora (`.rpm`) files — download them from the workflow run's
 **Artifacts** section. When a GitHub Release is published here, the same
 files are attached to the release automatically.
 
-To cut a release: merge the auto-sync PR, then
-`gh release create "v$(grep -E '^pkgver=' PKGBUILD | cut -d= -f2)-1" --generate-notes`
-(or use the web UI) — the workflow handles the rest.
+To cut a release: just merge the auto-sync PR — the `Auto release` workflow
+publishes `v<pkgver>-<pkgrel>` by itself, and `Build packages` attaches
+the `.pkg.tar.zst` / `.deb` / `.rpm` files. Manual fallback:
+`gh release create "v$(grep -E '^pkgver=' PKGBUILD | cut -d= -f2)-1" --generate-notes`.
 
 ## 1. Arch Linux (AUR)
 

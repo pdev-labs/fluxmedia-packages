@@ -166,6 +166,7 @@ sed -i -E "s/fluxmedia_1[0-9.]+\.[0-9.]+-1_all\.deb/fluxmedia_${LATEST}-1_all.de
 sed -i -E "s|FluxMedia-1[0-9.]+\.tar\.gz|FluxMedia-${LATEST}.tar.gz|g" "$REPO_DIR/README.md"
 sed -i -E "s|FluxMedia-1[0-9.]+/debian|FluxMedia-${LATEST}/debian|; s|cd FluxMedia-1[0-9.]+|cd FluxMedia-${LATEST}|" "$REPO_DIR/README.md"
 sed -i -E "s/fluxmedia-1[0-9.]+\.[0-9.]+-1\*/fluxmedia-${LATEST}-1*/" "$REPO_DIR/README.md"
+sed -i -E "s|releases/download/v[0-9.]+-[0-9]+/fluxmedia-[0-9.]+-[0-9]+-any\.pkg\.tar\.zst|releases/download/v${LATEST}-1/fluxmedia-${LATEST}-1-any.pkg.tar.zst|" "$REPO_DIR/README.md"
 echo "README.md updated"
 
 echo ""

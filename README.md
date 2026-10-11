@@ -39,15 +39,26 @@ the `.pkg.tar.zst` / `.deb` / `.rpm` files. Manual fallback:
 ## 1. Arch Linux (AUR)
 
 ```bash
-# with an AUR helper
+# Option 1: prebuilt package from GitHub Releases (no AUR account needed)
+sudo pacman -U https://github.com/pdev-labs/fluxmedia-packages/releases/download/v1.18.0-1/fluxmedia-1.18.0-1-any.pkg.tar.zst
+
+# Option 2: build it yourself
+git clone https://github.com/pdev-labs/fluxmedia-packages.git && cd fluxmedia-packages
+makepkg -si
+
+# Option 3: AUR helper (once the package is submitted to AUR)
 yay -S fluxmedia
 # or paru
 paru -S fluxmedia
-
-# manual
-git clone <aur-url-for-fluxmedia> && cd fluxmedia
-makepkg -si
 ```
+
+> **Note (Oct 2026):** AUR submission is on hold — new AUR account
+> registration is temporarily closed (anti-spam freeze, HTTP 503 on
+> `/register`). Until it reopens, use Option 1 or 2 above. Everything
+> here is kept AUR-ready (`PKGBUILD` + `.SRCINFO` maintained by
+> automation), so submitting later is a single push. If you have a
+> trusted contact with an existing AUR account, they can submit on your
+> behalf.
 
 Run:
 

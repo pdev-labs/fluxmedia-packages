@@ -1,0 +1,40 @@
+name: Auto release on version bump
+
+# Hands-free releases: whenever a version bump lands on main
+# (typically by merging an auto-sync PR), publish a GitHub Release
+# for that version if one does not exist yet. Publishing triggers
+# the `Build packages` workflow's `release` job, which builds
+# Arch/.deb/.rpm and attaches them to the release.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - PKGBUILD
+      - fluxmedia.spec
+      - debian/changelog
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create release if missing
+        run: |
+          PKGVER="$(grep -E '^pkgver=' PKGBUILD | cut -d= -f2)"
+          PKGREL="$(grep -E '^pkgrel=' PKGBUILD | cut -d= -f2)"
+          TAG="v${PKGVER}-${PKGREL}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists — nothing to do."
+          else
+            echo "Creating release $TAG..."
+            gh release create "$TAG" \
+              --title "FluxMedia packages $TAG" \
+              --generate-notes
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}

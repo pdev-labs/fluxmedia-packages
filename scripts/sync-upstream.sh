@@ -160,14 +160,17 @@ DEB_ENTRY="fluxmedia (${LATEST}-1) unstable; urgency=medium\n\n  * Auto-sync to 
 printf "%b%s" "$DEB_ENTRY" "$(cat "$REPO_DIR/debian/changelog")" > "$REPO_DIR/debian/changelog"
 echo "debian/changelog updated"
 
-# --- README.md ---
-sed -i -E "s/Upstream version packaged: \*\*[0-9.]+\*\*/Upstream version packaged: **${LATEST}**/" "$REPO_DIR/README.md"
-sed -i -E "s/fluxmedia_1[0-9.]+\.[0-9.]+-1_all\.deb/fluxmedia_${LATEST}-1_all.deb/" "$REPO_DIR/README.md"
-sed -i -E "s|FluxMedia-1[0-9.]+\.tar\.gz|FluxMedia-${LATEST}.tar.gz|g" "$REPO_DIR/README.md"
-sed -i -E "s|FluxMedia-1[0-9.]+/debian|FluxMedia-${LATEST}/debian|; s|cd FluxMedia-1[0-9.]+|cd FluxMedia-${LATEST}|" "$REPO_DIR/README.md"
-sed -i -E "s/fluxmedia-1[0-9.]+\.[0-9.]+-1\*/fluxmedia-${LATEST}-1*/" "$REPO_DIR/README.md"
-sed -i -E "s|releases/download/v[0-9.]+-[0-9]+/fluxmedia-[0-9.]+-[0-9]+-any\.pkg\.tar\.zst|releases/download/v${LATEST}-1/fluxmedia-${LATEST}-1-any.pkg.tar.zst|" "$REPO_DIR/README.md"
-echo "README.md updated"
+# --- README.md / INSTALL.md (version references) ---
+for doc in README.md INSTALL.md; do
+  [ -f "$REPO_DIR/$doc" ] || continue
+  sed -i -E "s/Upstream version packaged: \*\*[0-9.]+\*\*/Upstream version packaged: **${LATEST}**/" "$REPO_DIR/$doc"
+  sed -i -E "s/fluxmedia_1[0-9.]+\.[0-9.]+-1_all\.deb/fluxmedia_${LATEST}-1_all.deb/" "$REPO_DIR/$doc"
+  sed -i -E "s|FluxMedia-1[0-9.]+\.tar\.gz|FluxMedia-${LATEST}.tar.gz|g" "$REPO_DIR/$doc"
+  sed -i -E "s|FluxMedia-1[0-9.]+/debian|FluxMedia-${LATEST}/debian|; s|cd FluxMedia-1[0-9.]+|cd FluxMedia-${LATEST}|" "$REPO_DIR/$doc"
+  sed -i -E "s/fluxmedia-1[0-9.]+\.[0-9.]+-1\*/fluxmedia-${LATEST}-1*/" "$REPO_DIR/$doc"
+  sed -i -E "s|releases/download/v[0-9.]+-[0-9]+/fluxmedia-[0-9.]+-[0-9]+-any\.pkg\.tar\.zst|releases/download/v${LATEST}-1/fluxmedia-${LATEST}-1-any.pkg.tar.zst|" "$REPO_DIR/$doc"
+done
+echo "README.md / INSTALL.md updated"
 
 echo ""
 echo "Bumped to $LATEST. Changed files:"

@@ -4,6 +4,10 @@ Native OS packages for [FluxMedia](https://github.com/pdev-labs/FluxMedia)
 (`fluxmedia` — media portal, downloader, LAN QR share gateway).
 Upstream version packaged: **1.18.0**.
 
+> **End user looking to install?** → Start with
+> [**INSTALL.md**](INSTALL.md) (includes why `yay`/`paru` isn't
+> available yet).
+
 This repo holds distro-native packaging tracks that all build from
 the same upstream release tarball — no `pip install` at install time,
 no vendored wheels. `scripts/sync-upstream.sh` + the
